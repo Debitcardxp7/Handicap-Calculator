@@ -1,0 +1,175 @@
+from operator import itemgetter
+import csv
+
+
+#LIST ROUND*********************************************************
+
+def list_rounds(Rounds):
+    print("\n      Course       Score  par  Slope")
+    for i in range(0, len(Rounds)):
+        game = Rounds[i]
+        print(str(game[1]).ljust(20) + str(game[2]).rjust(3) +
+              str(game[3]).rjust(7)+ str(game[4]).rjust(6))
+        
+#*******************************************************************
+#WRITE ROUNDS*******************************************************
+        
+def write_rounds(game):
+
+    with open("GolfRounds.csv", "a", newline = "") as file:
+        writer = csv.writer(file)
+        writer.writerow(game)
+
+#*******************************************************************
+#READ ROUNDS********************************************************
+        
+def read_rounds(GolferName):
+    rounds = []
+
+    with open("GolfRounds.csv", newline = "") as file:
+        reader = csv.reader(file)
+        for row in reader:
+            if GolferName == row[0]:   
+                rounds.append(row)
+    return rounds
+
+#*******************************************************************
+#CALC HANDICAP******************************************************
+
+def calc_handicap(Rounds):
+    TotalDiff = 0
+    AvgDiff = 0
+    Handicap = 0
+    game = []
+
+    if len(Rounds) >= 5:
+        for i in range (0, len(Rounds)):
+            game = Rounds[1]
+            TotalDiff += ((int(game[2]) - int(game[3])) * 113)/int(game[4])
+
+        AvgDiff = TotalDiff / len(Rounds)
+        Handicap = int(round(AvgDiff * 0.97))
+
+        if int(Handicap) <= 0:
+            rank = "Championship"
+        elif int(Handicap) > 0 and int(Handicap) < 5:
+            rank = "Duffer"
+        elif int(Handicap) >= 5 and int(Handicap) < 10:
+            rank = "Average"
+        else:
+            rank = "Hacker"
+
+        print("the handicap is: " + str(Handicap))
+        print("the rank is: " + rank)
+    else:
+        Handicap = "N/A"
+        print("This Golfer's handicap is N/A")
+        print("This Golfer is a Rookie")
+        
+#*******************************************************************
+#LIST TEAM**********************************************************
+        
+def list_team():
+    stats = []
+
+    gname = []
+    glfr = []
+    with open("Golfer.csv", newline = "") as file:
+        reader = csv.reader(file)
+        for row in reader:
+            gname = row[0]
+            grank = []
+            grank.append(gname)
+
+            TotalDiff = 0
+            Handicap = 0
+            RndCnt = 0
+            with open("GolfRounds.csv", newline = "") as file:
+                reader = csv.reader(file)
+                for row in reader:
+                    rname = row[0]
+
+                    if gname == rname:
+                        TotalDiff += ((int(row[2]) - int(row[3])) * 113)/int(row[4])
+                        RndCnt += 1
+
+            Handicap = 0
+            if RndCnt >= 5:
+                Handicap = int(round((TotalDiff / RndCnt) * 0.97))
+                grank.append(Handicap)
+
+                if int(Handicap) <= 0:
+                    grank.append("Championship")
+                elif int(Handicap) > 0 and int(Handicap) < 5:
+                    grank.append("Duffer")
+                elif int(Handicap) >= 5 and int(Handicap) < 10:
+                    grank.append("Average")
+                else:
+                    grank.append("Hacker")
+            else:
+                grank.append("N/A")
+                grank.append("Rookie")
+
+            stats.append(grank)
+            
+    print("       Golfer       Handicap     Rank")
+    sortedStats = sorted(stats, key = itemgetter(2))
+    for i in range(0, len(sortedStats)):
+        grank = sortedStats[i]
+        print(str(grank[0]).ljust(20) + str(grank[1]).rjust(5) + grank[2].rjust(16))
+
+
+#*******************************************************************
+#MAIN***************************************************************
+        
+def main():
+    par = 0
+    slope = 0
+    score = 0
+    TotalDiff = 0.0
+    AvgDiff = 0.0
+    Handicap = 0
+    RndCount = 0
+    again = "y"
+    Rounds = []
+
+    golfer = input("Golfer's Name: ")
+    Rounds = read_rounds(golfer)
+    sortedRounds = sorted(Rounds, key = itemgetter(2))
+    list_rounds(sortedRounds)
+
+    moreRnds = 'n'
+    again = input("Do you wanna enter the Rounds y/n:")
+    while again == "y":
+        course = input("Enter the course name: ")
+        par = input("Par must be between 72 and 76:")
+        slope = input("Slope must be between 122 and 126: ")
+        score = input("Score must be bigger than 59: ")
+
+        game = []
+        game.append(golfer)
+        game.append(course)
+        game.append(score)
+        game.append(par)
+        game.append(slope)
+        Rounds.append(game)
+
+        write_rounds(game)
+        RndCount = RndCount + 1
+
+        again = input("Enter another Golfer y/n: ")
+        moreRnds = 'y'
+
+    if moreRnds == 'y':
+        calc_handicap(Rounds)
+        sortedRounds = sorted(Rounds, key = itemgetter(2))
+        list_rounds(sortedRounds)
+
+    print()
+    list_team()
+
+    again = input("Enter another Golfer y/n: ")
+   
+
+if __name__ == "__main__":
+    main()
