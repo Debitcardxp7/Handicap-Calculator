@@ -1,6 +1,6 @@
 from operator import itemgetter
 import csv
-
+import os
 
 #LIST ROUND*********************************************************
 
@@ -26,6 +26,10 @@ def write_rounds(game):
 def read_rounds(GolferName):
     rounds = []
 
+    if os.path.exists("GolfRounds.csv"):
+        pass
+    else:
+        open("GolfRounds.csv", "w")
     with open("GolfRounds.csv", newline = "") as file:
         reader = csv.reader(file)
         for row in reader:
@@ -74,6 +78,10 @@ def list_team():
 
     gname = []
     glfr = []
+    if os.path.exists("Golfer.csv"):
+        pass
+    else:
+        open("Golfer.csv", "w")
     with open("Golfer.csv", newline = "") as file:
         reader = csv.reader(file)
         for row in reader:
@@ -160,15 +168,15 @@ def main():
         again = input("Enter another Golfer y/n: ")
         moreRnds = 'y'
 
-    if moreRnds == 'y':
-        calc_handicap(Rounds)
-        sortedRounds = sorted(Rounds, key = itemgetter(2))
-        list_rounds(sortedRounds)
+        if moreRnds == 'y':
+            calc_handicap(Rounds)
+            sortedRounds = sorted(Rounds, key = itemgetter(2))
+            list_rounds(sortedRounds)
 
-    print()
-    list_team()
+        print()
+        list_team()
 
-    again = input("Enter another Golfer y/n: ")
+        again = input("Enter another Golfer y/n: ")
    
 
 if __name__ == "__main__":
